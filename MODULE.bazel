@@ -1,0 +1,35 @@
+module(
+    name = "sortcpp",
+    version = "head",
+)
+
+# Only direct dependencies need to be listed below.
+# Please keep the versions in sync with the versions in the WORKSPACE file.
+# see https://registry.bazel.build/
+bazel_dep(name = "bazel_skylib", version = "1.7.1")
+bazel_dep(name = "platforms", version = "0.0.11")
+bazel_dep(name = "rules_cc", version = "0.0.17")
+bazel_dep(name = "rules_python", version = "1.1.0")
+bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+
+#### DEV ONLY DEPENDENCIES BELOW HERE ####
+bazel_dep(name = "googletest", version = "1.15.2")
+
+SUPPORTED_PYTHON_VERSIONS = [
+    "3.13.1",
+]
+
+DEFAULT_PYTHON = "3.13.1"
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
+
+[
+    python.toolchain(
+        ignore_root_user_error = True,  # needed for CI
+        is_default = version == DEFAULT_PYTHON,
+        python_version = version,
+    )
+    for version in SUPPORTED_PYTHON_VERSIONS
+]
+
+use_repo(python, python = "python_versions")

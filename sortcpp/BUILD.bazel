@@ -1,0 +1,69 @@
+# Python wrapper for foo library.
+load("@rules_python//python:defs.bzl", "py_test")
+load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
+load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
+# load("@python_platform//:platform.bzl", "python_platform")
+
+pybind_extension(
+    name = "_sortcpp",
+    srcs = ["sortcpp.cpp"],
+    linkstatic = True,
+    deps = [
+        "//sortcpp/src:sortcpp",
+    ],
+)
+
+py_test(
+    name = "sortcpp_test",
+    size = "small",
+    srcs = ["sortcpp_test.py"],
+    python_version = "PY3",
+    deps = [":_sortcpp"],
+    tags = ["unit"],
+)
+
+py_library(
+    name = "sortcpp",
+    srcs = [
+        "__init__.py",
+    ],
+    data = ["//sortcpp:_sortcpp.so"],
+    srcs_version = "PY3",
+    visibility = ["//visibility:private"],
+)
+
+py_package(
+    name = "sortcpp_pkg",
+    visibility = ["//visibility:private"],
+    deps = [
+        ":sortcpp",
+    ],
+)
+
+# This rule builds the wheel, but we need to change the name of the .whl before
+# we publish to PyPI using a separate publish script outside of bazel. The
+# output that gets generated looks like the following:
+# openmined_psi-1.0.0-INTERPRETER-ABI-PLATFORM.whl
+py_wheel(
+    name = "wheel",
+    author = "Alexei Dudko",
+    classifiers = [
+        "Programming Language :: Python :: 3",
+        "Operating System :: OS Specific",
+        "Topic :: CPP",
+    ],
+    platform = select({
+        "@bazel_tools//src/conditions:windows_x64": "win_amd64",
+        "@bazel_tools//src/conditions:windows_arm64": "win_arm64",
+        "@bazel_tools//src/conditions:darwin_x86_64": "macosx_14_0_x86_64",
+        "@bazel_tools//src/conditions:darwin_arm64": "macosx_14_0_arm64",
+        "@bazel_tools//src/conditions:linux_x86_64": "linux_x86_64",
+        "@bazel_tools//src/conditions:linux_aarch64": "linux_aarch64",
+    }),
+    distribution = "sortcpp",
+    python_requires = ">=3.8",
+    version = "0.0.1",
+    deps = [
+        ":sortcpp_pkg",
+    ],
+)

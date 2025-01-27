@@ -1,0 +1,17 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "sortcpp",
+    srcs = ["sortcpp.cpp"],
+    hdrs = ["sortcpp.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "sortcpp_test",
+    srcs = ["sortcpp_test.cpp"],
+    deps = [
+        ":sortcpp",
+        "@googletest//:gtest_main",
+    ],
+)
