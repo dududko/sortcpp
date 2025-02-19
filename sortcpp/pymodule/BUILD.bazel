@@ -1,0 +1,17 @@
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
+
+py_library(
+    name = "pymodule",
+    srcs = ["__init__.py"],
+    imports = ["../.."],
+    visibility = ["//:__subpackages__"],
+    deps = ["@pypi//numpy"],
+)
+
+py_test(
+    name = "pymodule_test",
+    srcs = ["__test__.py"],
+    imports = ["../.."],
+    main = "__test__.py",
+    deps = ["@pypi//numpy"],
+)

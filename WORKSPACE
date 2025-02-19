@@ -36,21 +36,83 @@ http_archive(
     url = "https://github.com/bazelbuild/rules_python/releases/download/1.1.0/rules_python-1.1.0.tar.gz",
 )
 
+# Gazelle
+
+http_archive(
+    name = "io_bazel_rules_go",
+    integrity = "sha256-M6zErg9wUC20uJPJ/B3Xqb+ZjCPn/yxFF3QdQEmpdvg=",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/rules_go/releases/download/v0.48.0/rules_go-v0.48.0.zip",
+        "https://github.com/bazelbuild/rules_go/releases/download/v0.48.0/rules_go-v0.48.0.zip",
+    ],
+)
+
+http_archive(
+    name = "bazel_gazelle",
+    integrity = "sha256-12v3pg/YsFBEQJDfooN6Tq+YKeEWVhjuNdzspcvfWNU=",
+    urls = [
+        "https://mirror.bazel.build/github.com/bazelbuild/bazel-gazelle/releases/download/v0.37.0/bazel-gazelle-v0.37.0.tar.gz",
+        "https://github.com/bazelbuild/bazel-gazelle/releases/download/v0.37.0/bazel-gazelle-v0.37.0.tar.gz",
+    ],
+)
+
+load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_dependencies")
+load("@bazel_gazelle//:deps.bzl", "gazelle_dependencies", "go_repository")
+
+go_rules_dependencies()
+
+go_register_toolchains(version = "1.20.5")
+
+gazelle_dependencies()
+
 # Dependencies
 ## Python
 load("@rules_python//python:repositories.bzl", "py_repositories")
 py_repositories()
 
-load("@rules_python//python:repositories.bzl", "python_register_multi_toolchains")
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
 DEFAULT_PYTHON = "3.13.1"
-python_register_multi_toolchains(
-    name = "python",
-    default_version = DEFAULT_PYTHON,
-    python_versions = [
-      "3.13.1"
-    ],
-    ignore_root_user_error=True,
+python_register_toolchains(
+    name = "python_3_13",
+    python_version = DEFAULT_PYTHON,
+    # ignore_root_user_error=True,
 )
+
+load("@rules_python//python:pip.bzl", "pip_parse")
+
+pip_parse(
+    name = "pypi",
+
+    # Requirement groups allow Bazel to tolerate PyPi cycles by putting dependencies
+    # which are known to form cycles into groups together.
+    # experimental_requirement_cycles = {
+    #     "sphinx": [
+    #         "sphinx",
+    #         "sphinxcontrib-qthelp",
+    #         "sphinxcontrib-htmlhelp",
+    #         "sphinxcontrib-devhelp",
+    #         "sphinxcontrib-applehelp",
+    #         "sphinxcontrib-serializinghtml",
+    #     ],
+    # },
+    # (Optional) You can provide a python_interpreter (path) or a python_interpreter_target (a Bazel target, that
+    # acts as an executable). The latter can be anything that could be used as Python interpreter. E.g.:
+    # 1. Python interpreter that you compile in the build file.
+    # 2. Pre-compiled python interpreter included with http_archive.
+    # 3. Wrapper script, like in the autodetecting python toolchain.
+    #
+    # Here, we use the interpreter constant that resolves to the host interpreter from the default Python toolchain.
+    python_interpreter_target = "@python_3_13_host//:python",
+    # Set the location of the lock file.
+    requirements_lock = "//:requirements_lock.txt",
+    # requirements_windows = "//:requirements_windows.txt",
+)
+
+# Load the install_deps macro.
+load("@pypi//:requirements.bzl", "install_deps")
+
+# Initialize repositories for all packages in requirements_lock.txt.
+install_deps()
 
 ## `pybind11_bazel`
 git_repository(

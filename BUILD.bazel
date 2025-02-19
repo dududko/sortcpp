@@ -1,0 +1,34 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@pypi//:requirements.bzl", "all_whl_requirements")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+load("@rules_python_gazelle_plugin//manifest:defs.bzl", "gazelle_python_manifest")
+load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
+
+# bazel run //:requirements.update
+compile_pip_requirements(
+    name = "requirements",
+    src = "requirements.in",
+    requirements_txt = "requirements_lock.txt",
+)
+
+modules_mapping(
+    name = "modules_map",
+    exclude_patterns = [
+        "^_|(\\._)+",  # This is the default.
+        "(\\.tests)+",  # Add a custom one to get rid of the psutil tests.
+    ],
+    wheels = all_whl_requirements,
+)
+
+# bazel run //:gazelle_python_manifest.update
+gazelle_python_manifest(
+    name = "gazelle_python_manifest",
+    modules_mapping = ":modules_map",
+    pip_repository_name = "pypi",
+    requirements = "//:requirements_lock.txt",
+)
+
+gazelle(
+    name = "gazelle",
+    gazelle = "@rules_python_gazelle_plugin//python:gazelle_binary",
+)

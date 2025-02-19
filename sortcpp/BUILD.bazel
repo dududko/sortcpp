@@ -1,5 +1,5 @@
 # Python wrapper for foo library.
-load("@rules_python//python:defs.bzl", "py_test")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
 load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
 # load("@python_platform//:platform.bzl", "python_platform")
@@ -17,9 +17,10 @@ py_test(
     name = "sortcpp_test",
     size = "small",
     srcs = ["sortcpp_test.py"],
+    imports = [".."],
     python_version = "PY3",
-    deps = [":_sortcpp"],
     tags = ["unit"],
+    deps = [":sortcpp"],
 )
 
 py_library(
@@ -28,6 +29,8 @@ py_library(
         "__init__.py",
     ],
     data = ["//sortcpp:_sortcpp.so"],
+    imports = [".."],
+    precompile = "enabled",
     srcs_version = "PY3",
     visibility = ["//visibility:private"],
 )
@@ -52,6 +55,7 @@ py_wheel(
         "Operating System :: OS Specific",
         "Topic :: CPP",
     ],
+    distribution = "sortcpp",
     platform = select({
         "@bazel_tools//src/conditions:windows_x64": "win_amd64",
         "@bazel_tools//src/conditions:windows_arm64": "win_arm64",
@@ -60,7 +64,6 @@ py_wheel(
         "@bazel_tools//src/conditions:linux_x86_64": "linux_x86_64",
         "@bazel_tools//src/conditions:linux_aarch64": "linux_aarch64",
     }),
-    distribution = "sortcpp",
     python_requires = ">=3.8",
     version = "0.0.1",
     deps = [
