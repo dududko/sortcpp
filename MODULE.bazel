@@ -11,6 +11,7 @@ bazel_dep(name = "platforms", version = "0.0.11")
 bazel_dep(name = "rules_cc", version = "0.0.17")
 bazel_dep(name = "rules_python", version = "1.1.0")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
+#bazel_dep(name = "com_github_bazelbuild_buildtools", version = "2.13.6")
 
 # gazelle
 bazel_dep(name = "rules_python_gazelle_plugin", version = "1.1.0")
@@ -18,6 +19,21 @@ bazel_dep(name = "gazelle", version = "0.42.0", repo_name = "bazel_gazelle")
 
 #### DEV ONLY DEPENDENCIES BELOW HERE ####
 bazel_dep(name = "googletest", version = "1.15.2")
+
+bazel_dep(
+    name = "buildifier_prebuilt",
+    version = "8.0.1",
+    dev_dependency = True,
+)
+
+# Bzlmod
+buildifier_prebuilt = use_extension("//:defs.bzl", "buildifier_prebuilt_deps_extension")
+buildifier_prebuilt.toolchains(version = "4.2.5")
+use_repo(
+    buildifier_prebuilt,
+    "buildifier_prebuilt_toolchains",
+)
+
 
 DEFAULT_PYTHON = "3.13.1"
 

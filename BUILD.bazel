@@ -3,6 +3,7 @@ load("@pypi//:requirements.bzl", "all_whl_requirements")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@rules_python_gazelle_plugin//manifest:defs.bzl", "gazelle_python_manifest")
 load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 
 # bazel run //:requirements.update
 compile_pip_requirements(
@@ -31,4 +32,13 @@ gazelle_python_manifest(
 gazelle(
     name = "gazelle",
     gazelle = "@rules_python_gazelle_plugin//python:gazelle_binary",
+)
+
+buildifier(
+    name = "buildifier.check",
+    exclude_patterns = [
+        "./.git/*",
+    ],
+    lint_mode = "warn",
+    mode = "diff",
 )
