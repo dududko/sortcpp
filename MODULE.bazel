@@ -1,6 +1,6 @@
 module(
     name = "sortcpp",
-    version = "head",
+    version = "0.0.1",
 )
 
 # Only direct dependencies need to be listed below.
@@ -19,22 +19,15 @@ bazel_dep(name = "gazelle", version = "0.42.0", repo_name = "bazel_gazelle")
 #### DEV ONLY DEPENDENCIES BELOW HERE ####
 bazel_dep(name = "googletest", version = "1.15.2")
 
-SUPPORTED_PYTHON_VERSIONS = [
-    "3.13.1",
-]
-
 DEFAULT_PYTHON = "3.13.1"
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
 
-[
-    python.toolchain(
-        ignore_root_user_error = True,  # needed for CI
-        is_default = version == DEFAULT_PYTHON,
-        python_version = version,
-    )
-    for version in SUPPORTED_PYTHON_VERSIONS
-]
+python.toolchain(
+    ignore_root_user_error = True,  # needed for CI
+    is_default = True,
+    python_version = DEFAULT_PYTHON,
+)
 
 use_repo(python, python = "python_versions")
 
@@ -42,7 +35,6 @@ pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
 pip.parse(
     download_only = True,
     hub_name = "pypi",
-    # We need to use the same version here as in the `python.toolchain` call.
     python_version = DEFAULT_PYTHON,
     requirements_lock = "//:requirements_lock.txt",
 )
