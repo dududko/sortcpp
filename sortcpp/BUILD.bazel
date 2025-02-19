@@ -1,8 +1,6 @@
-# Python wrapper for foo library.
-load("@rules_python//python:defs.bzl", "py_library", "py_test")
 load("@pybind11_bazel//:build_defs.bzl", "pybind_extension")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 load("@rules_python//python:packaging.bzl", "py_package", "py_wheel")
-# load("@python_platform//:platform.bzl", "python_platform")
 
 pybind_extension(
     name = "_sortcpp",
@@ -43,10 +41,6 @@ py_package(
     ],
 )
 
-# This rule builds the wheel, but we need to change the name of the .whl before
-# we publish to PyPI using a separate publish script outside of bazel. The
-# output that gets generated looks like the following:
-# openmined_psi-1.0.0-INTERPRETER-ABI-PLATFORM.whl
 py_wheel(
     name = "wheel",
     author = "Alexei Dudko",

@@ -34,17 +34,14 @@ use_repo(
     "buildifier_prebuilt_toolchains",
 )
 
-
 DEFAULT_PYTHON = "3.13.1"
 
 python = use_extension("@rules_python//python/extensions:python.bzl", "python", dev_dependency = True)
-
 python.toolchain(
     ignore_root_user_error = True,  # needed for CI
     is_default = True,
     python_version = DEFAULT_PYTHON,
 )
-
 use_repo(python, python = "python_versions")
 
 pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
