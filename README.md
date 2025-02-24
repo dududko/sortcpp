@@ -4,6 +4,21 @@ Bazel, C++ and pybind11 sample with c++ tests, python tests and python wheel pac
 
 Inspired by [Mizux/bazel-pybind11](https://github.com/Mizux/bazel-pybind11)
 
+## Features
+
+- bazel modules
+- bazelisk
+- gazelle with python plugin
+- buildifier
+- usage of numpy dependancy
+
+## IDE
+
+### VS Code
+- https://github.com/bazel-contrib/vscode-bazel?tab=readme-ov-file
+- https://github.com/withered-magic/starpls
+- https://github.com/hedronvision/bazel-compile-commands-extractor
+
 ## Prerequisites
 
 * [Bazelisk](https://github.com/bazelbuild/bazelisk?tab=readme-ov-file#installation)
@@ -89,3 +104,7 @@ https://www.youtube.com/watch?v=rB7c69Z5Kus
 
 - nanobind
 https://nanobind.readthedocs.io/en/latest/
+
+# TODO
+
+- Configure [Renovate](https://github.com/renovatebot/renovate) to keep the dependencies up-to-date

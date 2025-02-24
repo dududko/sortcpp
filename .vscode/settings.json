@@ -1,4 +1,9 @@
 {
     // a language server that enables Bazel build files navigation support
-    "bazel.lsp.command": "starpls"
+    "bazel.lsp.command": "starpls",
+    "clangd.arguments": [
+        "--header-insertion=never",
+        "--compile-commands-dir=${workspaceFolder}/",
+        "--query-driver=**"
+    ]
 }
