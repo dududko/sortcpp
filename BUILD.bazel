@@ -50,3 +50,10 @@ buildifier(
     ],
     mode = "fix",
 )
+
+genrule(
+    name = "force_fetch",
+    srcs = ["@py_deps//:readme.txt"],  # This forces Bazel to fetch @py_deps
+    outs = ["dummy.txt"],
+    cmd = "echo 'Fetched' > $@",
+)

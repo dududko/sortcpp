@@ -1,9 +1,12 @@
 {
-    // a language server that enables Bazel build files navigation support
+    // A language server that uses c++ bazel external repositories
+    // to enable c++ files navigation support and autocompletion
     "bazel.lsp.command": "starpls",
     "clangd.arguments": [
         "--header-insertion=never",
         "--compile-commands-dir=${workspaceFolder}/",
         "--query-driver=**"
-    ]
+    ],
+    // Enable autocompletion for Python
+    "python.analysis.extraPaths": ["${workspaceFolder}/external/+vs_code_python_autocompletion+py_deps"],
 }
