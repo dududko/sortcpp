@@ -15,9 +15,9 @@ Inspired by [Mizux/bazel-pybind11](https://github.com/Mizux/bazel-pybind11)
 ## IDE
 
 ### VS Code
-- https://github.com/bazel-contrib/vscode-bazel?tab=readme-ov-file
-- https://github.com/withered-magic/starpls
-- https://github.com/hedronvision/bazel-compile-commands-extractor
+- [X] **starlark** autocompletion [link](https://github.com/withered-magic/starpls)
+- [X] **c++** autocompletion [link](https://github.com/hedronvision/bazel-compile-commands-extractor)
+- [X] **python** autocompletion [link](./vs_code_python_autocompletion.bzl)
 
 ## Prerequisites
 
