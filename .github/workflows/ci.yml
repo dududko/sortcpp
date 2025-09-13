@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Bazel
+      uses: bazel-contrib/setup-bazel@0.8.5
+      with:
+        bazelisk-cache: true
+        disk-cache: ${{ github.workflow }}
+        repository-cache: true
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.13.1'
+    
+    - name: Build all targets
+      run: bazel build //...
+    
+    - name: Run all tests
+      run: bazel test //... --test_output=all
+    
+    - name: Run buildifier check
+      run: bazel run //:buildifier.check
+    
+    - name: Upload Bazel test logs
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bazel-test-logs
+        # grab every .log and any .xml under bazel-testlogs for your test suite
+        path: |
+          bazel-testlogs/**/*.log
+          bazel-testlogs/**/*.xml
+        # keep these around for 1 days (default is 90)
+        retention-days: 1
+    
+    - name: Publish Test Results
+      uses: dududko/publish-unit-test-result-action/linux@8a08c1a5b87dca1e2182c850e6f1b6d8153f75cd
+      if: always()
+      with:
+        report_suite_logs: any
+        compare_to_earlier_commit: false
+        files: |
+          bazel-testlogs/**/*.xml
