@@ -25,9 +25,6 @@ jobs:
     - name: Run all tests
       run: bazel test //... --test_output=all
     
-    - name: Run buildifier check
-      run: bazel run //:buildifier.check
-    
     - name: Upload Bazel test logs
       uses: actions/upload-artifact@v4
       if: always()
@@ -37,8 +34,7 @@ jobs:
         path: |
           bazel-testlogs/**/*.log
           bazel-testlogs/**/*.xml
-        # keep these around for 1 days (default is 90)
-        retention-days: 1
+        retention-days: 90
     
     - name: Publish Test Results
       uses: dududko/publish-unit-test-result-action/linux@8a08c1a5b87dca1e2182c850e6f1b6d8153f75cd
@@ -48,3 +44,19 @@ jobs:
         compare_to_earlier_commit: false
         files: |
           bazel-testlogs/**/*.xml
+
+  buildifier:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Bazel
+      uses: bazel-contrib/setup-bazel@0.8.5
+      with:
+        bazelisk-cache: true
+        disk-cache: ${{ github.workflow }}
+        repository-cache: true
+    
+    - name: Run buildifier check
+      run: bazel run //:buildifier.check

@@ -15,7 +15,7 @@ bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 
 # gazelle
 bazel_dep(name = "gazelle", version = "0.45.0", repo_name = "bazel_gazelle")
-bazel_dep(name = "rules_python_gazelle_plugin", version = "1.6.1") # same version as rules_python
+bazel_dep(name = "rules_python_gazelle_plugin", version = "1.6.1")  # same version as rules_python
 bazel_dep(name = "gazelle_cc", version = "0.1.0")
 
 #### DEV ONLY DEPENDENCIES BELOW HERE ####
