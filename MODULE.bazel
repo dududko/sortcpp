@@ -66,12 +66,3 @@ pip.parse(
     requirements_lock = "//:requirements_lock.txt",
 )
 use_repo(pip, HUB_NAME)
-
-# # vs_code_python_autocompletion
-# vs_code_python_autocompletion = use_extension("//:vs_code_python_autocompletion.bzl", "vs_code_python_autocompletion", dev_dependency = True)
-# use_repo(vs_code_python_autocompletion, "py_deps")
-# vs_code_python_autocompletion.requirements(
-#     hub_name = HUB_NAME,
-#     python_version = DEFAULT_PYTHON,
-#     requirements_lock = "//:requirements_lock.txt",
-# )
