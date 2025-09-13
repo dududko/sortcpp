@@ -6,19 +6,20 @@ module(
 # Only direct dependencies need to be listed below.
 # Please keep the versions in sync with the versions in the WORKSPACE file.
 # see https://registry.bazel.build/
-bazel_dep(name = "bazel_skylib", version = "1.7.1")
-bazel_dep(name = "platforms", version = "0.0.11")
-bazel_dep(name = "rules_cc", version = "0.0.17")
-bazel_dep(name = "rules_python", version = "1.1.0")
+bazel_dep(name = "bazel_skylib", version = "1.8.1")
+bazel_dep(name = "platforms", version = "1.0.0")
+bazel_dep(name = "rules_cc", version = "0.2.8")
+bazel_dep(name = "rules_python", version = "1.6.1")
 bazel_dep(name = "pybind11_bazel", version = "2.13.6")
 #bazel_dep(name = "com_github_bazelbuild_buildtools", version = "2.13.6")
 
 # gazelle
-bazel_dep(name = "rules_python_gazelle_plugin", version = "1.1.0")
-bazel_dep(name = "gazelle", version = "0.42.0", repo_name = "bazel_gazelle")
+bazel_dep(name = "gazelle", version = "0.45.0", repo_name = "bazel_gazelle")
+bazel_dep(name = "rules_python_gazelle_plugin", version = "1.6.1") # same version as rules_python
+bazel_dep(name = "gazelle_cc", version = "0.1.0")
 
 #### DEV ONLY DEPENDENCIES BELOW HERE ####
-bazel_dep(name = "googletest", version = "1.15.2")
+bazel_dep(name = "googletest", version = "1.17.0", dev_dependency = True)
 
 # Hedron's Compile Commands Extractor for Bazel
 # https://github.com/hedronvision/bazel-compile-commands-extractor
@@ -33,7 +34,7 @@ git_override(
 
 bazel_dep(
     name = "buildifier_prebuilt",
-    version = "8.0.1",
+    version = "8.2.0.2",
     dev_dependency = True,
 )
 
@@ -66,11 +67,11 @@ pip.parse(
 )
 use_repo(pip, HUB_NAME)
 
-# vs_code_python_autocompletion
-vs_code_python_autocompletion = use_extension("//:vs_code_python_autocompletion.bzl", "vs_code_python_autocompletion", dev_dependency = True)
-use_repo(vs_code_python_autocompletion, "py_deps")
-vs_code_python_autocompletion.requirements(
-    hub_name = HUB_NAME,
-    python_version = DEFAULT_PYTHON,
-    requirements_lock = "//:requirements_lock.txt",
-)
+# # vs_code_python_autocompletion
+# vs_code_python_autocompletion = use_extension("//:vs_code_python_autocompletion.bzl", "vs_code_python_autocompletion", dev_dependency = True)
+# use_repo(vs_code_python_autocompletion, "py_deps")
+# vs_code_python_autocompletion.requirements(
+#     hub_name = HUB_NAME,
+#     python_version = DEFAULT_PYTHON,
+#     requirements_lock = "//:requirements_lock.txt",
+# )

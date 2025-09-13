@@ -1,4 +1,4 @@
-load("@bazel_gazelle//:def.bzl", "gazelle")
+load("@bazel_gazelle//:def.bzl", "gazelle", "gazelle_binary")
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("@pypi//:requirements.bzl", "all_whl_requirements")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
@@ -29,9 +29,18 @@ gazelle_python_manifest(
     requirements = "//:requirements_lock.txt",
 )
 
+gazelle_binary(
+    name = "gazelle_multilang",
+    languages = [
+        "@rules_python_gazelle_plugin//python",
+        "@gazelle_cc//language/cc",
+    ],
+)
+
+# gazelle:resolve cc gtest/gtest.h @googletest//:gtest_main
 gazelle(
     name = "gazelle",
-    gazelle = "@rules_python_gazelle_plugin//python:gazelle_binary",
+    gazelle = ":gazelle_multilang",
 )
 
 buildifier(
@@ -51,9 +60,9 @@ buildifier(
     mode = "fix",
 )
 
-genrule(
-    name = "force_fetch",
-    srcs = ["@py_deps//:readme.txt"],  # This forces Bazel to fetch @py_deps
-    outs = ["dummy.txt"],
-    cmd = "echo 'Fetched' > $@",
-)
+# genrule(
+#     name = "force_fetch",
+#     srcs = ["@py_deps//:readme.txt"],  # This forces Bazel to fetch @py_deps
+#     outs = ["dummy.txt"],
+#     cmd = "echo 'Fetched' > $@",
+# )
