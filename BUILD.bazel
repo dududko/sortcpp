@@ -9,7 +9,10 @@ load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
 compile_pip_requirements(
     name = "requirements",
     src = "requirements.in",
-    requirements_txt = "requirements_lock.txt",
+    python_version = "3.11",
+    requirements_txt = "requirements_linux.lock",
+    requirements_darwin = "requirements_darwin.lock",
+    # requirements_linux = "requirements_linux.lock",
 )
 
 modules_mapping(
@@ -26,7 +29,7 @@ gazelle_python_manifest(
     name = "gazelle_python_manifest",
     modules_mapping = ":modules_map",
     pip_repository_name = "pypi",
-    requirements = "//:requirements_lock.txt",
+    # requirements = "//:requirements_lock.txt",
 )
 
 gazelle_binary(

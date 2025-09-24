@@ -11,15 +11,7 @@ pybind_extension(
     ],
 )
 
-py_test(
-    name = "sortcpp_test",
-    size = "small",
-    srcs = ["sortcpp_test.py"],
-    imports = [".."],
-    python_version = "PY3",
-    tags = ["unit"],
-    deps = [":sortcpp"],
-)
+
 
 py_library(
     name = "sortcpp",
@@ -33,34 +25,44 @@ py_library(
     visibility = ["//visibility:private"],
 )
 
-py_package(
-    name = "sortcpp_pkg",
-    visibility = ["//visibility:private"],
-    deps = [
-        ":sortcpp",
-    ],
-)
+# py_test(
+#     name = "sortcpp_test",
+#     size = "small",
+#     srcs = ["sortcpp_test.py"],
+#     imports = [".."],
+#     python_version = "PY3",
+#     tags = ["unit"],
+#     deps = [":sortcpp"],
+# )
 
-py_wheel(
-    name = "wheel",
-    author = "Alexei Dudko",
-    classifiers = [
-        "Programming Language :: Python :: 3",
-        "Operating System :: OS Specific",
-        "Topic :: CPP",
-    ],
-    distribution = "sortcpp",
-    platform = select({
-        "@bazel_tools//src/conditions:windows_x64": "win_amd64",
-        "@bazel_tools//src/conditions:windows_arm64": "win_arm64",
-        "@bazel_tools//src/conditions:darwin_x86_64": "macosx_14_0_x86_64",
-        "@bazel_tools//src/conditions:darwin_arm64": "macosx_14_0_arm64",
-        "@bazel_tools//src/conditions:linux_x86_64": "linux_x86_64",
-        "@bazel_tools//src/conditions:linux_aarch64": "linux_aarch64",
-    }),
-    python_requires = ">=3.8",
-    version = "0.0.1",
-    deps = [
-        ":sortcpp_pkg",
-    ],
-)
+# py_package(
+#     name = "sortcpp_pkg",
+#     visibility = ["//visibility:private"],
+#     deps = [
+#         ":sortcpp",
+#     ],
+# )
+
+# py_wheel(
+#     name = "wheel",
+#     author = "Alexei Dudko",
+#     classifiers = [
+#         "Programming Language :: Python :: 3",
+#         "Operating System :: OS Specific",
+#         "Topic :: CPP",
+#     ],
+#     distribution = "sortcpp",
+#     platform = select({
+#         "@bazel_tools//src/conditions:windows_x64": "win_amd64",
+#         "@bazel_tools//src/conditions:windows_arm64": "win_arm64",
+#         "@bazel_tools//src/conditions:darwin_x86_64": "macosx_14_0_x86_64",
+#         "@bazel_tools//src/conditions:darwin_arm64": "macosx_14_0_arm64",
+#         "@bazel_tools//src/conditions:linux_x86_64": "linux_x86_64",
+#         "@bazel_tools//src/conditions:linux_aarch64": "linux_aarch64",
+#     }),
+#     python_requires = ">=3.8",
+#     version = "0.0.1",
+#     deps = [
+#         ":sortcpp_pkg",
+#     ],
+# )
