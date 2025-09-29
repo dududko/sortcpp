@@ -108,3 +108,43 @@ https://nanobind.readthedocs.io/en/latest/
 # TODO
 
 - Configure [Renovate](https://github.com/renovatebot/renovate) to keep the dependencies up-to-date
+
+
+
+
+# remote build and remote execution status:
+
+## python
+
+### pure rules_python
+
+Very problematic because of requirements and pip. They are platform specific.
+
+### rules_pycross
+
+Better. Tested in combination with poetry and it works. Remote build, remote test works good. gazelle is problematic, will require some change. 
+
+
+# running in docker
+
+```
+docker run --rm -it --platform=linux/arm64 \
+  -v "$(pwd):/app" \
+  -w /app \
+  ubuntu:24.04 \
+  /bin/bash
+```
+
+require:
+```
+apt-get update
+
+apt-get install -y curl ca-certificates git python3 g++ 
+
+curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.27.0/bazelisk-linux-arm64 -o /usr/local/bin/bazel
+chmod +x /usr/local/bin/bazel
+
+useradd -m -s /bin/bash appuser
+su - appuser
+cd /app
+```

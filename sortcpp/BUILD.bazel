@@ -11,6 +11,18 @@ pybind_extension(
     ],
 )
 
+py_library(
+    name = "sortcpp",
+    srcs = [
+        "__init__.py",
+    ],
+    data = ["//sortcpp:_sortcpp.so"],
+    imports = [".."],
+    # precompile = "enabled",
+    srcs_version = "PY3",
+    visibility = ["//visibility:private"],
+)
+
 py_test(
     name = "sortcpp_test",
     size = "small",
@@ -19,18 +31,6 @@ py_test(
     python_version = "PY3",
     tags = ["unit"],
     deps = [":sortcpp"],
-)
-
-py_library(
-    name = "sortcpp",
-    srcs = [
-        "__init__.py",
-    ],
-    data = ["//sortcpp:_sortcpp.so"],
-    imports = [".."],
-    precompile = "enabled",
-    srcs_version = "PY3",
-    visibility = ["//visibility:private"],
 )
 
 py_package(
