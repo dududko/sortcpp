@@ -1,47 +1,53 @@
-load("@bazel_gazelle//:def.bzl", "gazelle", "gazelle_binary")
+load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
+load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
-load("@pypi//:requirements.bzl", "all_whl_requirements")
+load("@poetry_deps//:requirements.bzl", "all_whl_requirements")
+load("@poetry_lock_file//:requirements.bzl", "all_requirements")
+load("@rules_pycross//pycross:defs.bzl", "pycross_lock_file", "pycross_poetry_lock_model")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@rules_python_gazelle_plugin//manifest:defs.bzl", "gazelle_python_manifest")
 load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
 
-# bazel run //:requirements.update
-compile_pip_requirements(
-    name = "requirements",
-    src = "requirements.in",
-    requirements_txt = "requirements_lock.txt",
-)
-
-modules_mapping(
-    name = "modules_map",
-    exclude_patterns = [
-        "^_|(\\._)+",  # This is the default.
-        "(\\.tests)+",  # Add a custom one to get rid of the psutil tests.
-    ],
-    wheels = all_whl_requirements,
-)
-
-# bazel run //:gazelle_python_manifest.update
-gazelle_python_manifest(
-    name = "gazelle_python_manifest",
-    modules_mapping = ":modules_map",
-    pip_repository_name = "pypi",
-    requirements = "//:requirements_lock.txt",
-)
-
+# gazelle:python_root
+# gazelle:python_label_convention deps:$distribution_name$
+# gazelle:python_label_normalization pep503
 gazelle_binary(
     name = "gazelle_multilang",
-    languages = [
+    languages = DEFAULT_LANGUAGES + [
         "@rules_python_gazelle_plugin//python",
         "@gazelle_cc//language/cc",
     ],
+    tags = ["manual"],
 )
 
+# gazelle:cc_group unit
 # gazelle:resolve cc gtest/gtest.h @googletest//:gtest_main
+
 gazelle(
     name = "gazelle",
     gazelle = ":gazelle_multilang",
+    tags = ["manual"],
 )
+
+gazelle(
+    name = "gazelle.check",
+    args = ["-mode=diff"],
+    gazelle = ":gazelle_multilang",
+    tags = ["manual"],
+)
+
+modules_mapping(
+    name = "gazelle.metadata",
+    tags = ["manual"],
+    wheels = all_requirements,
+)
+
+# gazelle_python_manifest(
+#     name = "gazelle.mapping",
+#     modules_mapping = ":gazelle.metadata",
+#     pip_repository_name = "poetry_lock_file",
+#     tags = ["manual"],
+# )
 
 buildifier(
     name = "buildifier.check",
@@ -60,9 +66,28 @@ buildifier(
     mode = "fix",
 )
 
-# genrule(
-#     name = "force_fetch",
-#     srcs = ["@py_deps//:readme.txt"],  # This forces Bazel to fetch @py_deps
-#     outs = ["dummy.txt"],
-#     cmd = "echo 'Fetched' > $@",
-# )
+package(default_visibility = ["//visibility:public"])
+
+pycross_poetry_lock_model(
+    name = "poetry_lock_model",
+    lock_file = "//:poetry.lock",
+    project_file = "//:pyproject.toml",
+    tags = ["manual"],
+)
+
+pycross_lock_file(
+    name = "poetry_lock_file",
+    out = "updated_poetry_lock_file.bzl",
+    default_alias_single_version = True,
+    lock_model_file = ":poetry_lock_model",
+    tags = ["manual"],
+    target_environments = ["@rules_pycross_e2e_environments//:environments"],
+)
+
+write_source_files(
+    name = "update_poetry_lock_file",
+    files = {
+        "poetry_lock_file.bzl": ":updated_poetry_lock_file.bzl",
+    },
+    tags = ["manual"],
+)

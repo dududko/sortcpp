@@ -1,0 +1,11 @@
+[tool.poetry]
+name = "sortcpp"
+version = "0.0.1"
+description = "Bazel, C++ and pybind11 sample with C++ tests, Python tests and Python wheel packaging"
+authors = ["Alexei Dudko"]
+
+[tool.poetry.dependencies]
+python = ">=3.10"
+numpy = ">=2.0.0"
+pandas = "2.3.2"
+requests = "2.32.5"
