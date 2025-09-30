@@ -1,16 +1,21 @@
 load("@aspect_bazel_lib//lib:write_source_files.bzl", "write_source_files")
 load("@bazel_gazelle//:def.bzl", "DEFAULT_LANGUAGES", "gazelle", "gazelle_binary")
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
-load("@poetry_deps//:requirements.bzl", "all_whl_requirements")
 load("@poetry_lock_file//:requirements.bzl", "all_requirements")
 load("@rules_pycross//pycross:defs.bzl", "pycross_lock_file", "pycross_poetry_lock_model")
-load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 load("@rules_python_gazelle_plugin//manifest:defs.bzl", "gazelle_python_manifest")
 load("@rules_python_gazelle_plugin//modules_mapping:def.bzl", "modules_mapping")
+
+package(default_visibility = ["//visibility:public"])
 
 # gazelle:python_root
 # gazelle:python_label_convention deps:$distribution_name$
 # gazelle:python_label_normalization pep503
+
+# gazelle:cc_group unit
+# gazelle:resolve cc gtest/gtest.h @googletest//:gtest_main
+
+# --- Gazelle -----------------------------------------------------------------
 gazelle_binary(
     name = "gazelle_multilang",
     languages = DEFAULT_LANGUAGES + [
@@ -19,9 +24,6 @@ gazelle_binary(
     ],
     tags = ["manual"],
 )
-
-# gazelle:cc_group unit
-# gazelle:resolve cc gtest/gtest.h @googletest//:gtest_main
 
 gazelle(
     name = "gazelle",
@@ -36,12 +38,14 @@ gazelle(
     tags = ["manual"],
 )
 
-modules_mapping(
-    name = "gazelle.metadata",
-    tags = ["manual"],
-    wheels = all_requirements,
-)
+# Generate Python modules mapping for Gazelle from the vendored Poetry lock repo.
+# modules_mapping(
+#     name = "gazelle.metadata",
+#     tags = ["manual"],
+#     wheels = all_requirements,
+# )
 
+# If you want a manifest file for debugging, uncomment the target below.
 # gazelle_python_manifest(
 #     name = "gazelle.mapping",
 #     modules_mapping = ":gazelle.metadata",
@@ -49,25 +53,21 @@ modules_mapping(
 #     tags = ["manual"],
 # )
 
+# --- Buildifier --------------------------------------------------------------
 buildifier(
     name = "buildifier.check",
-    exclude_patterns = [
-        "./.git/*",
-    ],
+    exclude_patterns = ["./.git/*"],
     lint_mode = "warn",
     mode = "diff",
 )
 
 buildifier(
     name = "buildifier.fix",
-    exclude_patterns = [
-        "./.git/*",
-    ],
+    exclude_patterns = ["./.git/*"],
     mode = "fix",
 )
 
-package(default_visibility = ["//visibility:public"])
-
+# --- rules_pycross: Poetry lock -> vendored lock file ------------------------
 pycross_poetry_lock_model(
     name = "poetry_lock_model",
     lock_file = "//:poetry.lock",
@@ -86,8 +86,6 @@ pycross_lock_file(
 
 write_source_files(
     name = "update_poetry_lock_file",
-    files = {
-        "poetry_lock_file.bzl": ":updated_poetry_lock_file.bzl",
-    },
+    files = {"poetry_lock_file.bzl": ":updated_poetry_lock_file.bzl"},
     tags = ["manual"],
 )

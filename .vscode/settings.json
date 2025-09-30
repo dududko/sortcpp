@@ -1,4 +1,10 @@
 {
+      // Save after you stop typing for 500ms
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 500,
+
+    // Restore dirty files after restarts (prevents loss)
+    "files.hotExit": "onExitAndWindowClose",
     // A language server that uses c++ bazel external repositories
     // to enable c++ files navigation support and autocompletion
     "bazel.lsp.command": "starpls",
