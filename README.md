@@ -8,9 +8,11 @@ Inspired by [Mizux/bazel-pybind11](https://github.com/Mizux/bazel-pybind11)
 
 - bazel modules
 - bazelisk
-- gazelle with python plugin
+- gazelle with python and cpp plugin
+- pyproject + poetry + rules_python + rules_pycross
 - buildifier
 - usage of numpy dependancy
+- supports remote build/execution
 
 ## IDE
 
@@ -70,20 +72,120 @@ sort_array([9, 5, 3])
 sort_array([9, -1, 10, 0, 3])
 ```
 
-### Build in docker
+## Gazelle - Automated BUILD file generation
 
+Gazelle automatically generates and updates BUILD.bazel files for your project. This workspace is configured with multi-language Gazelle support.
+
+### Using Gazelle
+
+Gazelle is configured to support Python and C++ (other languages can also be configured).
+
+```bash
+# Generate/update BUILD files for all languages (C++, Python, Go)
+bazel run //:gazelle
+
+# Check what Gazelle would change without applying (dry-run)
+bazel run //:gazelle.check
 ```
-docker run \
+
+**For C++ projects**, Gazelle will:
+- Detect header and source files
+- Generate appropriate `cc_library`, `cc_binary`, and `cc_test` targets
+- Resolve dependencies between targets
+- Support Conan dependencies when configured (TODO)
+
+**For Python projects**, Gazelle will:
+- Generate `py_library`, `py_binary`, and `py_test` targets
+- Detect imports and create appropriate dependencies
+- Handle package structure and module dependencies
+- Integrate with Poetry/pip dependencies
+
+The configuration is defined in [BUILD.bazel:11-16](BUILD.bazel#L11-L16).
+
+### Adding new external Python dependencies
+
+When adding new external Python dependencies, follow these steps:
+
+1. **Add dependency to pyproject.toml**:
+   ```toml
+   [tool.poetry.dependencies]
+   new-package = "^1.0.0"
+   ```
+
+2. **Update Poetry lock file**:
+   ```bash
+   poetry lock
+   ```
+
+3. **Generate new Bazel lock file**:
+   ```bash
+   bazel run //:update_poetry_lock_file
+   ```
+
+4. **Update Gazelle mappings and BUILD files**:
+   ```bash
+   bazel run //:gazelle
+   ```
+
+This workflow uses `rules_pycross` for cross-platform Python dependency management and Poetry for dependency resolution.
+
+
+### Build in Docker
+
+```bash
+# Start interactive Docker container with Bazel
+docker run --rm -it \
   --platform linux/amd64 \
   --entrypoint /bin/bash \
   -v "$(pwd)":/src/workspace \
   -v /tmp/build_output:/tmp/build_output \
   -w /src/workspace \
-  gcr.io/bazel-public/bazel:8.0.1 \
-  -c "bazel build //... && bazel test //... && bazel build //sortcpp:wheel"
+  gcr.io/bazel-public/bazel:8.4.1
 ```
 
+Inside the container, you can use regular Bazel commands:
 
+```bash
+# Build all targets
+bazel build //...
+
+# Run tests
+bazel test //...
+
+# Build Python wheel
+bazel build //sortcpp:wheel
+
+# Use remote execution (if configured)
+bazel build //... --config=cache --config=remote_amd
+```
+
+This provides a consistent Linux AMD64 environment for builds and testing.
+
+## Remote Build and Execution
+
+This project supports remote build and execution for faster builds through caching and distributed execution.
+
+### Setup
+
+Remote execution can be configured with services like [BuildBuddy](https://www.buildbuddy.io/docs/quickstart/). Setup typically takes about 10 minutes to configure.
+
+Once configured, you can use flags like:
+```bash
+# Build with remote cache and execution
+bazel build //... --config=cache --config=remote
+
+# Test with remote execution
+bazel test //... --config=cache --config=remote
+```
+
+### Benefits
+
+- **Faster builds**: Distributed execution across multiple machines
+- **Build caching**: Shared cache across team and CI/CD
+- **Cross-platform builds**: Build for different architectures without local toolchains
+- **Build insights**: Web UI for build analysis and debugging
+
+For setup instructions, see the [BuildBuddy Quickstart Guide](https://www.buildbuddy.io/docs/quickstart/).
 
 ## Other examples on how to build python wheels
 
@@ -104,47 +206,3 @@ https://www.youtube.com/watch?v=rB7c69Z5Kus
 
 - nanobind
 https://nanobind.readthedocs.io/en/latest/
-
-# TODO
-
-- Configure [Renovate](https://github.com/renovatebot/renovate) to keep the dependencies up-to-date
-
-
-
-
-# remote build and remote execution status:
-
-## python
-
-### pure rules_python
-
-Very problematic because of requirements and pip. They are platform specific.
-
-### rules_pycross
-
-Better. Tested in combination with poetry and it works. Remote build, remote test works good. gazelle is problematic, will require some change. 
-
-
-# running in docker
-
-```
-docker run --rm -it --platform=linux/arm64 \
-  -v "$(pwd):/app" \
-  -w /app \
-  ubuntu:24.04 \
-  /bin/bash
-```
-
-require:
-```
-apt-get update
-
-apt-get install -y curl ca-certificates git python3 g++ 
-
-curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.27.0/bazelisk-linux-arm64 -o /usr/local/bin/bazel
-chmod +x /usr/local/bin/bazel
-
-useradd -m -s /bin/bash appuser
-su - appuser
-cd /app
-```
